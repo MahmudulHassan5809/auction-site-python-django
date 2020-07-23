@@ -3,7 +3,7 @@ from django.utils.html import format_html
 from django.contrib.auth import get_user_model
 from django.contrib.auth.admin import UserAdmin
 from django.contrib import admin
-from accounts.models import Profile
+from accounts.models import Profile, PaymentCreditCard
 from accounts.forms import CustomUserCreationForm, CustomUserChangeForm
 
 # Register your models here.
@@ -51,3 +51,12 @@ class ProfileAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Profile, ProfileAdmin)
+
+
+class PaymentCreditCardAdmin(admin.ModelAdmin):
+    list_display = ["owner", "card_holder", "card_number", "expiration"]
+    search_fields = ('owner__username', 'card_holder', 'card_number',)
+    list_per_page = 20
+
+
+admin.site.register(PaymentCreditCard, PaymentCreditCardAdmin)

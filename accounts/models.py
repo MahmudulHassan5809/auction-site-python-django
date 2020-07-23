@@ -54,6 +54,12 @@ class PaymentCreditCard(models.Model):
                                      RegexValidator(r'^\d{1,10}$')])
     postal_code = models.CharField(max_length=20)
 
+
+    class Meta:
+        verbose_name = 'PaymentCreditCard'
+        verbose_name_plural = '3. PaymentCreditCard'
+
+
     def get_absolute_url(self):
         return reverse('accounts:payment_details')
 

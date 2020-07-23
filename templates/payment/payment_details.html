@@ -30,7 +30,7 @@
                                 <th>Card Number</th>
                                 <th>Expiration</th>
                                 <th>Security Code</th>
-                                <th>Edit</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -41,9 +41,10 @@
                                     <td>{{user_payment.card_holder}}</td>
                                     <td>{{user_payment.card_number}}</td>
                                     <td>{{user_payment.expiration}}</td>
-                                    <td>{{user_payment.security_code}}</td>
+                                    <td>{{user_payment.security_code|first}} **** {{user_payment.security_code|last}}</td>
                                     <td>
-                                        <a href="{% url 'accounts:edit_credit_card' user_payment.id %}" class="btn btn-sm btn-success">Edit</a>
+                                        <a href="{% url 'accounts:edit_credit_card' user_payment.id %}" class="btn btn-sm btn-success">Edit</a>--
+                                        <a href="{% url 'accounts:delete_credit_card' user_payment.id %}" class="btn btn-sm btn-success">Delete</a>
                                     </td>
                                 </tr>
                             {% endfor %}

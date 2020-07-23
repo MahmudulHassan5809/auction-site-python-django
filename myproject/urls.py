@@ -8,6 +8,7 @@ from accounts.views import HomeLoginView
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('accounts/', include('accounts.urls', namespace='accounts')),
+    path('auction/', include('auction.urls', namespace='auction')),
     path('', HomeLoginView.as_view(), name="home_login"),
     path('ckeditor/', include('ckeditor_uploader.urls')),
 ]

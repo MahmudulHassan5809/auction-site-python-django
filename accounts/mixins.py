@@ -32,3 +32,13 @@ class AictiveSellerRequiredMixin:
             messages.error(
                 request, ('Please Login Or May Be Your Account Is Not Active Or Not A Valid User'))
             return redirect('home_login')
+
+
+class UserHasPaymentSystem:
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.user_payment_credit_card.all().count() != 0:
+            return super().dispatch(request, *args, **kwargs)
+        else:
+            messages.error(
+                request, ('Please Add Payment'))
+            return redirect('accounts:add_credit_card')

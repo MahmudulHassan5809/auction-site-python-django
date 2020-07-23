@@ -9,7 +9,9 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
+from django.urls import reverse_lazy
 import datetime
+
 
 from django.contrib.auth import get_user_model
 from .mixins import AictiveUserRequiredMixin, AictiveBidderRequiredMixin, AictiveSellerRequiredMixin
@@ -196,6 +198,22 @@ class EditCreditCardView(SuccessMessageMixin, AictiveUserRequiredMixin, generic.
     def form_valid(self, form):
         form.instance.owner = self.request.user
         return super().form_valid(form)
+
+
+class DeleteCreditCardView(SuccessMessageMixin, AictiveUserRequiredMixin, generic.edit.DeleteView):
+    model = PaymentCreditCard
+    template_name = 'payment/delete_credit_card.html'
+    success_message = 'Credit Card Deleted SuccessFully'
+    success_url = reverse_lazy('accounts:payment_details')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Delete Credit Card'
+        return context
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super(DeleteCreditCardView, self).delete(request, *args, **kwargs)
 
 
 class DashboardView(View):

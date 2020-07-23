@@ -22,6 +22,7 @@ ALLOWED_HOSTS = ['127.0.0.1']
 INSTALLED_APPS = [
     # Apps
     'accounts',
+    'auction',
 
     'django.contrib.admin',
     'django.contrib.auth',
@@ -35,6 +36,8 @@ INSTALLED_APPS = [
     'crispy_forms',
     'ckeditor',
     'ckeditor_uploader',
+    'taggit',
+    'smart_selects',
 ]
 
 SITE_ID = 1
