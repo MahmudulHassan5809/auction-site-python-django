@@ -156,11 +156,11 @@ class ChangePasswordView(AictiveUserRequiredMixin, View):
 
 class PaymentDetailsView(AictiveUserRequiredMixin, View):
     def get(self, request, *args, **kwargs):
-        user_payment = PaymentCreditCard.objects.filter(
-            owner=request.user).first()
+        user_all_payment = PaymentCreditCard.objects.filter(
+            owner=request.user)
         context = {
             'title': 'Payment Details',
-            'user_payment': user_payment
+            'user_all_payment': user_all_payment
         }
         return render(request, 'payment/payment_details.html', context)
 
@@ -179,14 +179,6 @@ class AddCreditCardView(SuccessMessageMixin, AictiveUserRequiredMixin, generic.C
     def form_valid(self, form):
         form.instance.owner = self.request.user
         return super(AddCreditCardView, self).form_valid(form)
-
-    def render_to_response(self, context):
-        qs = PaymentCreditCard.objects.filter(
-            owner=self.request.user).first()
-        if qs:
-            messages.info(self.request, 'Please Update Previous Data')
-            return redirect('accounts:payment_details')
-        return super().render_to_response(context)
 
 
 class EditCreditCardView(SuccessMessageMixin, AictiveUserRequiredMixin, generic.edit.UpdateView):

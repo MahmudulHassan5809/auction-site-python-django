@@ -34,7 +34,9 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {% if user_payment %}
+                            {% for user_payment  in user_all_payment %}
+
+
                                 <tr>
                                     <td>{{user_payment.card_holder}}</td>
                                     <td>{{user_payment.card_number}}</td>
@@ -44,7 +46,7 @@
                                         <a href="{% url 'accounts:edit_credit_card' user_payment.id %}" class="btn btn-sm btn-success">Edit</a>
                                     </td>
                                 </tr>
-                            {% endif %}
+                            {% endfor %}
                         </tbody>
                     </table>
                 </div>

@@ -45,7 +45,7 @@ class Profile(models.Model):
 
 
 class PaymentCreditCard(models.Model):
-    owner = models.OneToOneField(
+    owner = models.ForeignKey(
         get_user_model(), on_delete=models.CASCADE, related_name='user_payment_credit_card')
     card_holder = models.CharField(max_length=250)
     card_number = models.CharField(max_length=255)
