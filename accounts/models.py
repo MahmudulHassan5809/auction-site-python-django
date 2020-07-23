@@ -1,6 +1,8 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.core.validators import RegexValidator
 from django.dispatch import receiver
+from django.urls import reverse
 from django.contrib.auth import get_user_model
 from django.db.models.signals import post_save
 
@@ -9,6 +11,9 @@ from django.db.models.signals import post_save
 
 class User(AbstractUser):
     email = models.EmailField(unique=True)
+
+    def has_related_object(self):
+        return hasattr(self, 'user_payment_credit_card')
 
     class Meta:
         verbose_name = 'User'
@@ -20,7 +25,6 @@ class Profile(models.Model):
         ('1', 'Bidder'),
         ('2', 'Seller'),
     )
-
     user = models.OneToOneField(
         get_user_model(), on_delete=models.CASCADE, related_name='user_profile')
     phone_number = models.CharField(max_length=50)
@@ -38,6 +42,23 @@ class Profile(models.Model):
 
     def __str__(self):
         return self.user.username
+
+
+class PaymentCreditCard(models.Model):
+    owner = models.OneToOneField(
+        get_user_model(), on_delete=models.CASCADE, related_name='user_payment_credit_card')
+    card_holder = models.CharField(max_length=250)
+    card_number = models.CharField(max_length=255)
+    expiration = models.DateTimeField()
+    security_code = models.CharField(max_length=4, validators=[
+                                     RegexValidator(r'^\d{1,10}$')])
+    postal_code = models.CharField(max_length=20)
+
+    def get_absolute_url(self):
+        return reverse('accounts:payment_details')
+
+    def __str__(self):
+        return self.card_holder
 
 
 @receiver(post_save, sender=User)
