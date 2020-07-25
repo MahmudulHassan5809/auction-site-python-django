@@ -4,6 +4,9 @@ from taggit.models import Tag
 from smart_selects.db_fields import GroupedForeignKey
 from django.contrib.auth import get_user_model
 from django.urls import reverse
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+import datetime
 # Create your models here.
 
 
@@ -70,12 +73,13 @@ class Product(models.Model):
     image = models.ImageField(upload_to="product")
     active = models.BooleanField(default=False)
     rejected = models.BooleanField(default=False)
-    created = models.DateField(auto_now_add=True, auto_now=False)
+    created = models.DateField(default=datetime.date.today)
     auction_date = models.ForeignKey(
         AuctionDate, on_delete=models.CASCADE, related_name='auction_date_product')
     auction_session = models.ForeignKey(
         AuctionSession, on_delete=models.CASCADE, related_name='auction_session_product')
 
+    added_to_auction = models.BooleanField(default=False)
     tags = TaggableManager()
 
     def get_absolute_url(self):
@@ -87,3 +91,24 @@ class Product(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class AuctionProduct(models.Model):
+    product = models.ForeignKey(
+        Product, on_delete=models.CASCADE, related_name='auction_products')
+
+    class Meta:
+        ordering = ['-id']
+        verbose_name_plural = "5.Auction Products"
+
+    def __str__(self):
+        return self.product.title
+
+
+@receiver(post_save, sender=Product)
+def add_product_to_auction(sender, instance, created, **kwargs):
+    if instance.active and not instance.added_to_auction:
+        AuctionProduct.objects.create(product=instance)
+        instance.added_to_auction = True
+        instance.save()
+        print('Done')

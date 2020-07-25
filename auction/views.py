@@ -13,7 +13,7 @@ from django.contrib.auth.forms import PasswordChangeForm
 from accounts.models import Profile, PaymentCreditCard
 
 
-from auction.models import Product, SubCategory, AuctionDate, AuctionSession
+from auction.models import Product, SubCategory, AuctionDate, AuctionSession, AuctionProduct
 from auction.forms import ProductForm
 
 from django.views import View, generic
@@ -36,6 +36,7 @@ def load_auction_session(request):
 
 class ProductListView(AictiveSellerRequiredMixin, UserHasPaymentSystem, generic.ListView):
     model = Product
+    paginate_by = 20
     context_object_name = 'product_list'
     template_name = 'product/product_list.html'
 
@@ -96,3 +97,57 @@ class DeleteProductView(AictiveSellerRequiredMixin, UserHasPaymentSystem, Succes
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
         return super(DeleteCreditCardView, self).delete(request, *args, **kwargs)
+
+
+class TodayAuctionProductView(AictiveBidderRequiredMixin, UserHasPaymentSystem, generic.ListView):
+    model = AuctionProduct
+    context_object_name = 'product_list'
+    paginate_by = 10
+    template_name = 'auction/auction_product.html'
+
+    def get_queryset(self):
+        today = datetime.date.today()
+        qs = AuctionProduct.objects.select_related('product').filter(
+            product__auction_date__auction_date=today)
+        return qs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Today Auction Product'
+        return context
+
+
+class FutureAuctionProductView(AictiveBidderRequiredMixin, UserHasPaymentSystem, generic.ListView):
+    model = AuctionProduct
+    context_object_name = 'product_list'
+    paginate_by = 10
+    template_name = 'auction/auction_product.html'
+
+    def get_queryset(self):
+        today = datetime.date.today()
+        qs = AuctionProduct.objects.select_related('product').filter(
+            product__auction_date__auction_date__gt=today)
+        return qs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Upcoming Auction Product'
+        return context
+
+
+class PreviousAuctionProductView(AictiveBidderRequiredMixin, UserHasPaymentSystem, generic.ListView):
+    model = AuctionProduct
+    context_object_name = 'product_list'
+    paginate_by = 10
+    template_name = 'auction/auction_product.html'
+
+    def get_queryset(self):
+        today = datetime.date.today()
+        qs = AuctionProduct.objects.select_related('product').filter(
+            product__auction_date__auction_date__lt=today)
+        return qs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Previous Auction Product'
+        return context

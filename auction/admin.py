@@ -1,5 +1,5 @@
 from django.contrib import admin
-from auction.models import AuctionDate, AuctionSession, Category, SubCategory, Product
+from auction.models import AuctionDate, AuctionSession, Category, SubCategory, Product, AuctionProduct
 # Register your models here.
 
 
@@ -49,7 +49,7 @@ admin.site.register(Category, CategoryAdmin)
 
 class ProductAdmin(admin.ModelAdmin):
     list_display = ('owner', 'title', 'category',
-                    'sub_category', 'active', 'rejected', 'created')
+                    'sub_category', 'active', 'rejected', 'added_to_auction', 'created')
     search_fields = ('owner__username', 'title', 'category', 'sub_category',)
     list_filter = ('owner__username', 'active',
                    'rejected', 'category', 'sub_category',)
@@ -60,3 +60,30 @@ class ProductAdmin(admin.ModelAdmin):
 
 # Register your models here.
 admin.site.register(Product, ProductAdmin)
+
+
+class AuctionProductAdmin(admin.ModelAdmin):
+    list_display = ('product', 'product_owner', 'product_category',
+                    'product_sub_category', 'auction_date', 'auction_session')
+    search_fields = ('product__title', 'product__owner__username',
+                     'product__category__category_name', 'product__sub_category__sub_category_name',)
+    list_per_page = 20
+
+    def product_owner(self, obj):
+        return obj.product.owner.username.title()
+
+    def product_category(self, obj):
+        return obj.product.category.category_name
+
+    def product_sub_category(self, obj):
+        return obj.product.sub_category.sub_category_name
+
+    def auction_date(self, obj):
+        return obj.product.auction_date.auction_date
+
+    def auction_session(self, obj):
+        return obj.product.auction_session
+
+
+# Register your models here.
+admin.site.register(AuctionProduct, AuctionProductAdmin)

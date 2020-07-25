@@ -13,4 +13,12 @@ urlpatterns = [
          views.EditProductView.as_view(), name="edit_product"),
     path('delete-product/<int:pk>',
          views.DeleteProductView.as_view(), name="delete_product"),
+
+
+    path('today/auction-produc/', views.TodayAuctionProductView.as_view(),
+         name='today_auction_product'),
+    path('future/auction-produc/', views.FutureAuctionProductView.as_view(),
+         name='future_auction_product'),
+    path('previous/auction-produc/', views.PreviousAuctionProductView.as_view(),
+         name='previous_auction_product'),
 ]
