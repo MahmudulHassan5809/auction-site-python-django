@@ -20,7 +20,7 @@ class AictiveBidderRequiredMixin:
             return super().dispatch(request, *args, **kwargs)
         else:
             messages.error(
-                request, ('Please Login Or May Be Your Account Is Not Active Or Not A Valid User'))
+                request, ('You Are Not Bidder'))
             return redirect('home_login')
 
 
@@ -31,7 +31,7 @@ class AictiveSellerRequiredMixin:
         else:
             messages.error(
                 request, ('Please Login Or May Be Your Account Is Not Active Or Not A Valid User'))
-            return redirect('home_login')
+            return redirect('You Are Not Seller')
 
 
 class UserHasPaymentSystem:

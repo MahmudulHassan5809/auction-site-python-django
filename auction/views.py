@@ -1,10 +1,11 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
 import datetime
-
+from django.utils.timezone import now, localtime
 
 from django.contrib.auth import get_user_model
 from django.contrib.messages.views import SuccessMessageMixin
+from django.contrib import messages
 from accounts.mixins import AictiveUserRequiredMixin, AictiveBidderRequiredMixin, AictiveSellerRequiredMixin, UserHasPaymentSystem
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView
@@ -13,7 +14,7 @@ from django.contrib.auth.forms import PasswordChangeForm
 from accounts.models import Profile, PaymentCreditCard
 
 
-from auction.models import Product, SubCategory, AuctionDate, AuctionSession, AuctionProduct
+from auction.models import Product, SubCategory, AuctionDate, AuctionSession, AuctionProduct, AuctionBidding
 from auction.forms import ProductForm
 
 from django.views import View, generic
@@ -151,3 +152,75 @@ class PreviousAuctionProductView(AictiveBidderRequiredMixin, UserHasPaymentSyste
         context = super().get_context_data(**kwargs)
         context['title'] = 'Previous Auction Product'
         return context
+
+
+class AuctionDetailsView(AictiveUserRequiredMixin, UserHasPaymentSystem, generic.DetailView):
+    model = Product
+    context_object_name = 'product'
+    template_name = 'auction/auction_details.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = f'{self.object.title} -- Details'
+        check = AuctionBidding.objects.select_related(
+            'product', 'user').filter(product=self.object, user=self.request.user).first()
+        context['bidding_check'] = check
+
+        all_bidding = AuctionBidding.objects.select_related(
+            'product', 'user').filter(product=self.object)
+
+        context['all_bidding'] = all_bidding
+
+        today = datetime.date.today()
+        context['today'] = today
+        context['time'] = localtime().time()
+        return context
+
+
+class ParticpateAuctionView(AictiveBidderRequiredMixin, UserHasPaymentSystem, View):
+    def get(self, request, *args, **kwargs):
+        product_id = kwargs.get('product_id')
+        product_obj = get_object_or_404(Product, id=product_id)
+
+        today = datetime.date.today()
+        if product_obj.auction_date.auction_date >= today:
+            check = AuctionBidding.objects.select_related('product', 'user').filter(
+                product=product_obj, user=request.user).first()
+            if check:
+                messages.info(request, 'Wait For Bidding Start Time')
+                return redirect('auction:auction_details', product_id)
+            else:
+                AuctionBidding.objects.create(
+                    product=product_obj, user=request.user)
+                messages.info(
+                    request, 'Thanks For Your Participation.Bidding Will Be Start On Time')
+                return redirect('auction:auction_details', product_id)
+        else:
+            messages.info(
+                request, 'This Auction Was Complted')
+            return redirect('auction:auction_details', product_id)
+
+    def post(self, request, *args, **kwargs):
+        product_id = kwargs.get('product_id')
+        product_obj = get_object_or_404(Product, id=product_id)
+
+        today = datetime.date.today()
+        time = localtime().time()
+
+        check = AuctionBidding.objects.select_related(
+            'product', 'user').filter(product=product_obj, user=self.request.user).first()
+
+        if check:
+            if product_obj.auction_date.auction_date == today and product_obj.auction_session.auction_end_time >= time and product_obj.auction_session.auction_start_time <= time:
+
+                check.amount = float(request.POST.get('amount'))
+                check.save()
+                return redirect('auction:auction_details', product_id)
+            elif product_obj.auction_date.auction_date > today:
+                print('Future')
+            else:
+                print('Past')
+        else:
+            messages.info(
+                request, 'Please First Click The Participate Button')
+            return redirect('auction:auction_details', product_id)

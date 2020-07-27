@@ -55,8 +55,9 @@
                                         </td>
 
                                         <td>
-                                            <a href="{% url 'auction:edit_product' product.id %}" class="btn btn-sm btn-success">Edit</a>--
-                                            <a href="{% url 'auction:delete_product' product.id %}" class="btn btn-sm btn-success">Delete</a>
+                                            <a href="{% url 'auction:edit_product' product.id %}" class="btn btn-sm btn-success btn-block">Edit</a>
+                                            <a href="{% url 'auction:delete_product' product.id %}" class="btn btn-sm btn-success btn-block">Delete</a>
+                                            <a href="{% url 'auction:auction_details' product.id %}" class="btn btn-sm btn-success btn-block">Auction Details</a>
                                         </td>
                                     </tr>
                                 {% endfor %}

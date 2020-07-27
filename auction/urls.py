@@ -21,4 +21,10 @@ urlpatterns = [
          name='future_auction_product'),
     path('previous/auction-produc/', views.PreviousAuctionProductView.as_view(),
          name='previous_auction_product'),
+
+    path('details/<int:pk>/', views.AuctionDetailsView.as_view(),
+         name='auction_details'),
+
+    path('particpate/<int:product_id>/', views.ParticpateAuctionView.as_view(),
+         name='participate_auction'),
 ]

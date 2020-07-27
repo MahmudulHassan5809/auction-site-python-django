@@ -71,6 +71,7 @@ class Product(models.Model):
         SubCategory, "category", on_delete=models.CASCADE, related_name='subcategory_product')
     title = models.CharField(max_length=200)
     image = models.ImageField(upload_to="product")
+    min_price = models.FloatField()
     active = models.BooleanField(default=False)
     rejected = models.BooleanField(default=False)
     created = models.DateField(default=datetime.date.today)
@@ -100,6 +101,16 @@ class AuctionProduct(models.Model):
     class Meta:
         ordering = ['-id']
         verbose_name_plural = "5.Auction Products"
+
+    def __str__(self):
+        return self.product.title
+
+
+class AuctionBidding(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    user = models.ForeignKey(
+        get_user_model(), on_delete=models.CASCADE, related_name='user_bidding')
+    amount = models.FloatField(default=0.0, null=True, blank=True)
 
     def __str__(self):
         return self.product.title
