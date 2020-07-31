@@ -6,6 +6,7 @@ from django.contrib.auth import get_user_model
 from django.urls import reverse
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from .tasks import set_bidding_winner
 import datetime
 # Create your models here.
 
@@ -26,11 +27,14 @@ class AuctionSession(models.Model):
         AuctionDate, on_delete=models.CASCADE, related_name='auction_date_session')
     auction_start_time = models.TimeField()
     auction_end_time = models.TimeField()
+    end_time = models.DateTimeField(null=True, blank=True)
 
     def save(self, *args, **kwargs):
 
         self.auction_end_time = self.auction_start_time.replace(
             hour=(self.auction_start_time.hour + 1) % 24)
+        self.end_time = datetime.datetime.combine(
+            self.auction_date.auction_date, self.auction_end_time)
 
         super(AuctionSession, self).save(*args, **kwargs)
 
@@ -102,6 +106,16 @@ class AuctionProduct(models.Model):
         ordering = ['-id']
         verbose_name_plural = "5.Auction Products"
 
+    def save(self, *args, **kwargs):
+        create_task = False
+        if self.pk is None:
+            create_task = True
+        super(AuctionProduct, self).save(*args, **kwargs)
+
+        if create_task:
+            set_bidding_winner.apply_async(
+                args=[self.product.id], eta=self.product.auction_session.end_time)
+
     def __str__(self):
         return self.product.title
 
@@ -114,6 +128,17 @@ class AuctionBidding(models.Model):
 
     def __str__(self):
         return self.product.title
+
+
+class AuctionWinner(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    user = models.ForeignKey(
+        get_user_model(), on_delete=models.CASCADE, related_name='winner', null=True, blank=True)
+    amount = models.FloatField(default=0.0, null=True, blank=True)
+    is_complted = models.BooleanField(default=False)
+
+    def __str__(self):
+        return 'winner'
 
 
 @receiver(post_save, sender=Product)

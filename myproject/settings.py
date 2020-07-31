@@ -50,6 +50,8 @@ CKEDITOR_UPLOAD_PATH = "ck_editor/"
 CKEDITOR_RESTRICT_BY_USER = True
 
 
+CELERY_BROKER_URL = 'amqp://localhost'
+
 CKEDITOR_CONFIGS = {
     'default': {
         'toolbar': 'full',

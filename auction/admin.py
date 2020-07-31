@@ -1,12 +1,12 @@
 from django.contrib import admin
-from auction.models import AuctionDate, AuctionSession, Category, SubCategory, Product, AuctionProduct
+from auction.models import AuctionDate, AuctionSession, Category, SubCategory, Product, AuctionProduct, AuctionBidding, AuctionWinner
 # Register your models here.
 
 
 class AuctionSessionline(admin.StackedInline):
     model = AuctionSession
     extra = 1
-    exclude = ['auction_end_time']
+    exclude = ['auction_end_time','end_time']
 
 
 class AuctionDateAdmin(admin.ModelAdmin):
@@ -54,7 +54,7 @@ class ProductAdmin(admin.ModelAdmin):
     list_filter = ('owner__username', 'active',
                    'rejected', 'category', 'sub_category',)
     list_per_page = 20
-    list_editable = ['active', 'rejected']
+    list_editable = ['active', 'rejected', 'added_to_auction']
     autocomplete_fields = ['owner', 'category']
 
 
@@ -87,3 +87,13 @@ class AuctionProductAdmin(admin.ModelAdmin):
 
 # Register your models here.
 admin.site.register(AuctionProduct, AuctionProductAdmin)
+
+
+class AuctionWinnerAdmin(admin.ModelAdmin):
+    list_display = ('product', 'user', 'amount', 'is_complted')
+    search_fields = ('user__username', 'product__title', 'amount')
+    list_filter = ('is_complted',)
+    list_per_page = 20
+
+# Register your models here.
+admin.site.register(AuctionWinner, AuctionWinnerAdmin)
