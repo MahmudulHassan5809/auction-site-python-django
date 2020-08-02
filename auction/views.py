@@ -14,7 +14,7 @@ from django.contrib.auth.forms import PasswordChangeForm
 from accounts.models import Profile, PaymentCreditCard
 
 
-from auction.models import Product, SubCategory, AuctionDate, AuctionSession, AuctionProduct, AuctionBidding
+from auction.models import Product, SubCategory, AuctionDate, AuctionSession, AuctionProduct, AuctionBidding, AuctionWinner
 from auction.forms import ProductForm
 
 from django.views import View, generic
@@ -213,9 +213,14 @@ class ParticpateAuctionView(AictiveBidderRequiredMixin, UserHasPaymentSystem, Vi
         if check:
             if product_obj.auction_date.auction_date == today and product_obj.auction_session.auction_end_time >= time and product_obj.auction_session.auction_start_time <= time:
 
-                check.amount = float(request.POST.get('amount'))
-                check.save()
-                return redirect('auction:auction_details', product_id)
+                amount = float(request.POST.get('amount'))
+                if amount >= product_obj.min_price:
+                    check.amount = amount
+                    check.save()
+                    return redirect('auction:auction_details', product_id)
+                else:
+                    messages.info(request, 'Amount Must Be Greater Than Min Price Of The Product')
+                    return redirect('auction:auction_details', product_id)
             elif product_obj.auction_date.auction_date > today:
                 print('Future')
             else:
@@ -224,3 +229,19 @@ class ParticpateAuctionView(AictiveBidderRequiredMixin, UserHasPaymentSystem, Vi
             messages.info(
                 request, 'Please First Click The Participate Button')
             return redirect('auction:auction_details', product_id)
+
+
+class AuctionWinnerView(AictiveUserRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+        product_id = kwargs.get('product_id')
+        product_obj = get_object_or_404(Product, id=product_id)
+
+        winner = AuctionWinner.objects.filter(product=product_obj).first()
+
+        context = {
+            'product_obj': product_obj,
+            'winner': winner,
+            'titlte': 'Auction Result'
+        }
+
+        return render(request, 'auction/winner.html', context)

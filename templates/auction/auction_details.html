@@ -27,12 +27,12 @@
                             <span class="text-danger font-weight-bold text-center">Already Particpated</span>
                         {% elif product.auction_date.auction_date >= today %}
                             {% if product.auction_date.auction_date == today and product.auction_session.auction_end_time < time %}
-                                <a href="">Bidding Complated Click Here To Show Result</a>
+                                <a href="{% url 'auction:auction_winner' product.id %}">Bidding Complated Click Here To Show Result</a>
                             {% else %}
                                  <a href="{% url 'auction:participate_auction' product.id %}" class="btn btn-primary">Participate</a>
                             {% endif %}
                         {% else %}
-                            <a href="">Bidding Complated Click Here To Show Result</a>
+                            <a href="{% url 'auction:auction_winner' product.id %}">Bidding Complated Click Here To Show Result</a>
                         {% endif %}
 
                     {% endif %}
@@ -45,7 +45,7 @@
             <div class="overflow-auto">
                 {% if product.auction_date.auction_date >= today %}
                     {% if product.auction_date.auction_date == today and product.auction_session.auction_end_time < time %}
-                        <a href="">Bidding Complated Click Here To Show Result</a>
+                        <a href="{% url 'auction:auction_winner' product.id %}">Bidding Complated Click Here To Show Result</a>
                     {% elif product.auction_date.auction_date == today and product.auction_session.auction_start_time > time %}
                         <h2>Bidding Will Start On {{product.auction_date.auction_date}} At {{product.auction_session.auction_start_time}}</h2>
                     {% elif product.auction_date.auction_date == today and product.auction_session.auction_end_time >= time and product.auction_session.auction_start_time <= time %}
@@ -86,9 +86,9 @@
                         </div>
                     {% endif %}
                 {% elif product.auction_date.auction_date < today %}
-                    <a href="">Bidding Complated Click Here To Show Result</a>
+                    <a href="{% url 'auction:auction_winner' product.id %}">Bidding Complated Click Here To Show Result</a>
                 {% else %}
-                    <a href="">Bidding Complated Click Here To Show Result</a>
+                    <a href="{% url 'auction:auction_winner' product.id %}">Bidding Complated Click Here To Show Result</a>
                 {% endif %}
 
 

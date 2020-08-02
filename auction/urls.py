@@ -27,4 +27,8 @@ urlpatterns = [
 
     path('particpate/<int:product_id>/', views.ParticpateAuctionView.as_view(),
          name='participate_auction'),
+
+
+    path('winner/<int:product_id>/', views.AuctionWinnerView.as_view(),
+         name='auction_winner'),
 ]
