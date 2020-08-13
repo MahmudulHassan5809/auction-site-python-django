@@ -11,7 +11,7 @@ class AictiveUserRequiredMixin:
         else:
             messages.error(
                 request, ('Please Login Or May Be Your Account Is Not Active Or Not A Valid User'))
-            return redirect('home_login')
+            return redirect('accounts:login')
 
 
 class AictiveBidderRequiredMixin:
@@ -21,7 +21,7 @@ class AictiveBidderRequiredMixin:
         else:
             messages.error(
                 request, ('You Are Not Bidder'))
-            return redirect('home_login')
+            return redirect('accounts:login')
 
 
 class AictiveSellerRequiredMixin:
@@ -31,7 +31,7 @@ class AictiveSellerRequiredMixin:
         else:
             messages.error(
                 request, ('Please Login Or May Be Your Account Is Not Active Or Not A Valid User'))
-            return redirect('You Are Not Seller')
+            return redirect('accounts:login')
 
 
 class UserHasPaymentSystem:

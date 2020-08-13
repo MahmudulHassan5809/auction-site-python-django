@@ -14,7 +14,7 @@ from django.contrib.auth.forms import PasswordChangeForm
 from accounts.models import Profile, PaymentCreditCard
 
 
-from auction.models import Product, SubCategory, AuctionDate, AuctionSession, AuctionProduct, AuctionBidding, AuctionWinner
+from auction.models import Product, SubCategory, AuctionDate, AuctionSession, AuctionProduct, AuctionBidding, AuctionWinner, Category, SubCategory, SearchHistory
 from auction.forms import ProductForm
 
 from django.views import View, generic
@@ -33,6 +33,24 @@ def load_auction_session(request):
     auction_session = AuctionSession.objects.filter(
         auction_date=auction_date_id)
     return render(request, 'product/auction_session_dropdown_list_options.html', {'auction_session': auction_session})
+
+
+class HomeView(generic.ListView):
+    model = AuctionProduct
+    context_object_name = 'product_list'
+    paginate_by = 10
+    template_name = 'landing/home.html'
+
+    def get_queryset(self):
+        today = datetime.date.today()
+        qs = AuctionProduct.objects.select_related('product').filter(
+            product__auction_date__auction_date__gte=today)
+        return qs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Home'
+        return context
 
 
 class ProductListView(AictiveSellerRequiredMixin, UserHasPaymentSystem, generic.ListView):
@@ -219,7 +237,8 @@ class ParticpateAuctionView(AictiveBidderRequiredMixin, UserHasPaymentSystem, Vi
                     check.save()
                     return redirect('auction:auction_details', product_id)
                 else:
-                    messages.info(request, 'Amount Must Be Greater Than Min Price Of The Product')
+                    messages.info(
+                        request, 'Amount Must Be Greater Than Min Price Of The Product')
                     return redirect('auction:auction_details', product_id)
             elif product_obj.auction_date.auction_date > today:
                 print('Future')
@@ -245,3 +264,30 @@ class AuctionWinnerView(AictiveUserRequiredMixin, View):
         }
 
         return render(request, 'auction/winner.html', context)
+
+
+class SearchProductView(AictiveUserRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+        category_id = request.GET.get('category')
+        sub_category_id = request.GET.get('sub_category')
+
+        category_obj = get_object_or_404(Category, id=category_id)
+        sub_category_obj = get_object_or_404(SubCategory, id=sub_category_id)
+
+        check_history = SearchHistory.objects.filter(user=request.user).first()
+
+        if check_history:
+            check_history.category.add(category_obj)
+            check_history.sub_category.add(sub_category_obj)
+        else:
+            serach_history = SearchHistory.objects.create(user=request.user)
+            serach_history.category.add(category_obj)
+            serach_history.sub_category.add(sub_category_obj)
+
+        search_product = Product.objects.filter(
+            category=category_obj, sub_category=sub_category_obj)
+        context = {
+            'product_list': search_product,
+            'title': 'Search Result',
+        }
+        return render(request, 'auction/search_product.html', context)

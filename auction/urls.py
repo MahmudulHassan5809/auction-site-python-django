@@ -31,4 +31,8 @@ urlpatterns = [
 
     path('winner/<int:product_id>/', views.AuctionWinnerView.as_view(),
          name='auction_winner'),
+
+
+    path('search/product/', views.SearchProductView.as_view(),
+         name='search_product'),
 ]

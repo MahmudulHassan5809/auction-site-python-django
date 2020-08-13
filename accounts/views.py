@@ -28,8 +28,8 @@ from django.views import View, generic
 # Create your views here.
 
 
-class HomeLoginView(LoginView):
-    template_name = 'landing/home.html'
+class LoginView(LoginView):
+    template_name = 'landing/login.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

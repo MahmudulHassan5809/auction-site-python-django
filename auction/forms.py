@@ -7,7 +7,8 @@ from auction.models import Product, SubCategory, AuctionSession, AuctionDate
 class ProductForm(ModelForm):
     class Meta:
         model = Product
-        exclude = ('owner', 'active', 'rejected', 'created_at')
+        exclude = ('owner', 'active', 'rejected',
+                   'created_at', 'added_to_auction')
 
     def __init__(self, *args, **kwargs):
         super(ProductForm, self).__init__(*args, **kwargs)

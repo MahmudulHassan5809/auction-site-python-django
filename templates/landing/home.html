@@ -9,38 +9,38 @@
 
 
 {% block content %}
-<div class="col-xl-10 col-lg-12 col-md-9">
+<div class="col-md-12 mt-2">
+    <div class="card">
+                <div class="crad-header">
+                    <h4 class="lead font-weight-bold text-center my-2">{{title}}</h4>
 
-    <div class="card o-hidden border-0 shadow-lg my-5">
-        <div class="card-body p-0">
-            <!-- Nested Row within Card Body -->
-            <div class="row">
-                <div class="col-lg-6 d-none d-lg-block bg-login-image"></div>
-                <div class="col-lg-6">
-                    <div class="p-5">
-                        <div class="text-center">
-                            <h1 class="h4 text-gray-900 mb-4">Welcome Back!</h1>
-                        </div>
-                        <form class="user" method="POST" action="{% url 'home_login' %}" novalidate>
-                            {% csrf_token %}
-                            {{form|crispy}}
-                            <button type="submit" class="btn btn-primary btn-user btn-block">
-                                Login
-                            </button>
-
-                        </form>
-                        <hr>
-                        <div class="text-center">
-                            <a class="small" href="{% url 'accounts:password_reset' %}">Forgot Password?</a>
-                        </div>
-                        <div class="text-center">
-                            <a class="small" href="{% url 'accounts:register' %}">Create an Account!</a>
-                        </div>
-                    </div>
                 </div>
-            </div>
-        </div>
-    </div>
+                <div class="card-body">
 
+                        <div class="row">
+                            {% for product in product_list %}
+
+
+                                <div class="col-md-4">
+                                    <div class="card border-dark p-4">
+                                        <img src="{{product.product.image.url}}" class="figure-img img-fluid rounded">
+                                        <h5 class="lead font-weight-bold text-dark">{{product.product.title}}</h5>
+                                        <h5 class="lead font-weight-bold text-dark">Price {{product.product.min_price}}</h5>
+                                        <p class="text-dark font-weight-bold lead">
+                                            Auction Date : {{product.product.auction_date}} <br>
+                                            Auction Session : {{product.product.auction_session}} <br>
+                                            <a href="{% url 'auction:auction_details' product.product.id %}" class="btn btn-success">Details</a>
+                                        </p>
+                                    </div>
+                                </div>
+
+                            {% endfor %}
+                        </div>
+
+                </div>
+    </div>
+    <div class="col-md-12 d-flex justify-content-center mt-3">
+        {% include 'partials/_paginate.html' %}
+    </div>
 </div>
 {% endblock content %}

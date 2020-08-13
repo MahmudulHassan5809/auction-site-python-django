@@ -6,7 +6,7 @@ from django.contrib.auth import get_user_model
 from django.urls import reverse
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from .tasks import set_bidding_winner
+from .tasks import set_bidding_winner, send_email_for_similar_product
 import datetime
 # Create your models here.
 
@@ -126,6 +126,9 @@ class AuctionBidding(models.Model):
         get_user_model(), on_delete=models.CASCADE, related_name='user_bidding')
     amount = models.FloatField(default=0.0, null=True, blank=True)
 
+    class Meta():
+        verbose_name_plural = "6.AuctionBidding"
+
     def __str__(self):
         return self.product.title
 
@@ -137,14 +140,30 @@ class AuctionWinner(models.Model):
     amount = models.FloatField(default=0.0, null=True, blank=True)
     is_complted = models.BooleanField(default=False)
 
+    class Meta():
+        verbose_name_plural = "7.AuctionWinner"
+
     def __str__(self):
         return 'winner'
+
+
+class SearchHistory(models.Model):
+    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
+    category = models.ManyToManyField(Category)
+    sub_category = models.ManyToManyField(SubCategory)
+
+    class Meta():
+        verbose_name_plural = "8.SearchHistory"
+
+    def __str__(self):
+        return 'Search History'
 
 
 @receiver(post_save, sender=Product)
 def add_product_to_auction(sender, instance, created, **kwargs):
     if instance.active and not instance.added_to_auction:
+        send_email_for_similar_product.delay(instance.id)
+
         AuctionProduct.objects.create(product=instance)
         instance.added_to_auction = True
         instance.save()
-        print('Done')

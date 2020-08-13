@@ -8,6 +8,7 @@ from django.views.generic.base import TemplateView
 
 app_name = "accounts"
 urlpatterns = [
+    path('login/', views.LoginView.as_view(), name="login"),
     path('register/', views.RegisterView.as_view(), name="register"),
     path('activate/<uidb64>/<token>', views.activate, name='activate'),
     path('dashboard/', views.DashboardView.as_view(), name='dashboard_view'),
