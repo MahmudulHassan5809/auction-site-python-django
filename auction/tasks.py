@@ -16,8 +16,6 @@ def set_bidding_winner(product_id):
     winner = AuctionBidding.objects.filter(
         product=product_object, amount=max_amount).first()
 
-    print(winner)
-
     if winner:
         AuctionWinner.objects.create(
             product=product_object, user=winner.user, amount=winner.amount, is_complted=True)
