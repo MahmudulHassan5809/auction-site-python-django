@@ -161,9 +161,12 @@ class SearchHistory(models.Model):
 
 @receiver(post_save, sender=Product)
 def add_product_to_auction(sender, instance, created, **kwargs):
-    if instance.active and not instance.added_to_auction:
+    if instance.active and instance.added_to_auction:
         send_email_for_similar_product.delay(instance.id)
-
-        AuctionProduct.objects.create(product=instance)
-        instance.added_to_auction = True
-        instance.save()
+        check = AuctionProduct.objects.filter(product=instance).first()
+        if not check:
+            AuctionProduct.objects.create(product=instance)
+    elif instance.active and not instance.added_to_auction:
+        check = AuctionProduct.objects.filter(product=instance).first()
+        if check:
+            check.delete()

@@ -43,8 +43,10 @@ class HomeView(generic.ListView):
 
     def get_queryset(self):
         today = datetime.date.today()
+        print(AuctionProduct.objects.filter())
         qs = AuctionProduct.objects.select_related('product').filter(
             product__auction_date__auction_date__gte=today)
+        print(qs)
         return qs
 
     def get_context_data(self, **kwargs):
