@@ -96,7 +96,7 @@ def activate(request, uidb64, token):
         return redirect('home_login')
     else:
         messages.success(request, ('Activation link is invalid!'))
-        return redirect('home_login')
+        return redirect('accounts:login')
 
 
 class MyProfileView(AictiveUserRequiredMixin, View):
